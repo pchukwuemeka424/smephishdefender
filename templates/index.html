@@ -1,0 +1,103 @@
+{% extends "homebase.html" %}
+{% block content %}
+
+<div style="height: 100vh;" class="d-flex justify-content-center align-items-center">
+    
+    <div class="col-sm-5 p-5">
+        <div id="hide">
+
+        <h1>Login</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-danger alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div><br>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form><br></br>
+        <p>Don't have an account? <a href="#" id="signup-link">Sign up here</a>.</p>
+        </div>
+
+
+        <div id="show" style="display: none;">
+            <!-- Content to show -->
+            <h1>Signup Form</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="/signup" method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="form-group">
+                <label for="telephone">Telephone:</label>
+                <input type="tel" class="form-control" id="telephone" name="telephone" placeholder="Enter your telephone number">
+            </div>
+            <div class="form-group">
+                <label for="business_name">Business Name:</label>
+                <input type="text" class="form-control" id="business_name" name="business_name" placeholder="Enter your business name">
+            </div>
+            <div class="form-group">
+                <label for="business_type">Type of Business:</label>
+                <input type="text" class="form-control" id="business_type" name="business_type" placeholder="Enter your business type">
+            </div>
+            <div class="form-group">
+                <label for="role">User Role:</label>
+                <select class="form-control" id="role" name="role">
+                    <option value="admin">Admin</option>
+                    <option value="individual">Individual</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      <div id="login-link">Already have an account? <a href="#">Login here</a>.</div>
+        </div>
+    </div>
+        
+    <div class="col-sm-7 bg-dark h-100%" style="height: 100%;background-position: center;background-repeat: no-repeat; background-size: cover; background-image: url('https://www.rtinsights.com/wp-content/uploads/2022/05/cyber-security-Depositphotos_442954478_S-800x529.jpg');"></div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("login-link").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent the default behavior of the link
+            document.getElementById("hide").style.display = "block"; // Show the login form
+            document.getElementById("show").style.display = "none"; // Hide the signup form
+        });
+    
+        document.getElementById("signup-link").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent the default behavior of the link
+            document.getElementById("hide").style.display = "none"; // Hide the login form
+            document.getElementById("show").style.display = "block"; // Show the signup form
+        });
+    });
+    </script>
+</div>
+  </script>
+  {% endblock %}

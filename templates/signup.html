@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <!-- Include Bootstrap CSS (you may need to adjust the paths) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Signup Form</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="/signup" method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+            <div class="form-group">
+                <label for="telephone">Telephone:</label>
+                <input type="tel" class="form-control" id="telephone" name="telephone">
+            </div>
+            <div class="form-group">
+                <label for="business_name">Business Name:</label>
+                <input type="text" class="form-control" id="business_name" name="business_name">
+            </div>
+            <div class="form-group">
+                <label for="business_type">Type of Business:</label>
+                <input type="text" class="form-control" id="business_type" name="business_type">
+            </div>
+            <div class="form-group">
+                <label for="role">User Role:</label>
+                <select class="form-control" id="role" name="role">
+                    <option value="admin">Admin</option>
+                    <option value="individual">Individual</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <p>Already have an account? <a href="/login">Login here</a>.</p>
+    </div>
+</body>
+</html>

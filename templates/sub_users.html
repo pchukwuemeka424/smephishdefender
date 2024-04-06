@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Employers</h1>
+    <table class="table table-hover my-0">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <!-- Edit button -->
+                    <form action="/edit_sub_user/{{ user.id }}" method="get">
+                        <button type="submit" class="btn btn-success">Edit</button>
+                    </form>
+                    
+                    <!-- Delete button -->
+                    <form action="/delete_sub_user/{{ user.id }}" method="post" onsubmit="return confirm('Are you sure you want to delete this sub user?');">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endblock %}

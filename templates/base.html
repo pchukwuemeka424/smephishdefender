@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Admin &amp; Dashboard Template based on Bootstrap 5">
+	<meta name="author" content="AdminKit">
+	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link rel="shortcut icon" href="img/icons/icon-48x48.png" />
+
+	<link rel="canonical" href="https://demo-basic.adminkit.io/pages-blank.html" />
+
+	<title>Dashboard</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+	<div class="wrapper">
+		<nav id="sidebar" class="sidebar js-sidebar">
+			<div class="sidebar-content js-simplebar">
+				<a class="sidebar-brand" href="/admin">
+          <span class="align-middle">Dashboard</span>
+        </a>
+
+				<ul class="sidebar-nav">
+					<li class="sidebar-header">
+						Pages
+					</li>
+
+					{% if current_user.role == 'admin' %}
+					<!-- Sidebar items for admin -->
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/admin">
+							<i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
+						</a>
+					</li>
+				
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/sub_user_dashboard">
+							<i class="align-middle" data-feather="user"></i> <span class="align-middle">Add New Employer</span>
+						</a>
+					</li>
+				
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/sub_users">
+							<i class="align-middle" data-feather="log-in"></i> <span class="align-middle">All Employer</span>
+						</a>
+					</li>
+				
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/reports">
+							<i class="align-middle" data-feather="log-in"></i> <span class="align-middle">Reports</span>
+						</a>
+					</li>
+				{% else %}
+				<li class="sidebar-item">
+					<a class="sidebar-link" href="/user_dashboard">
+						<i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
+					</a>
+				</li>
+					<!-- Sidebar item for non-admin users -->
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/predictions">
+							<i class="align-middle" data-feather="check-square"></i> <span class="align-middle">Predictions</span>
+						</a>
+					</li>
+				{% endif %}
+				
+				
+					<li class="sidebar-item">
+						<a class="sidebar-link" href="/logout">
+              <i class="align-middle" data-feather="square"></i> <span class="align-middle">Logout</span>
+            </a>
+					</li>
+				</ul>
+
+			
+			</div>
+		</nav>
+
+		<div class="main">
+			<nav class="navbar navbar-expand navbar-light navbar-bg">
+				<a class="sidebar-toggle js-sidebar-toggle">
+          <i class="hamburger align-self-center"></i>
+        </a>
+
+			
+			</nav>
+
+			<main class="content">
+				<div class="container-fluid p-0">
+{% block content %}
+
+
+
+{% endblock %}
+
+</div>
+</main>
+
+<footer class="footer">
+
+</footer>
+</div>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+
+</html>

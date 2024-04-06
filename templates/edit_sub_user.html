@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Edit Employers</h1>
+    <form action="{{ url_for('edit_sub_user', user_id=user.id) }}" method="post">
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" class="form-control form-control-lg" id="name" name="name" value="{{ user.name }}">
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" class="form-control form-control-lg"  id="email" name="email" value="{{ user.email }}">
+        </div><br>
+        <button type="submit" class="btn btn-success">Update</button>
+    </form>
+    {% endblock %}

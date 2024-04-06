@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>User Dashboard</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <td>Welcom {{ user.name }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ user.email }}</td>
+      
+        </tr>
+      
+        <!-- Add more rows to display additional user information -->
+    </table>
+  <div class="bg-white shadow-lg p-4 my-2 col-sm-8">
+    <div  class="h4">Analyse suspicious  URLs to detect malware and other breaches
+    </div>
+<form action="/predict" method="post">
+    
+    <div class="input-group my-3">
+        <input type="text" class="form-control form-control-lg " placeholder="Scan a Url For Phishing"  name="url" required>
+        <button class="btn btn-success" type="submit"> Check</button> 
+      </div>
+</form>
+  </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+    {% if prediction_result %}
+
+<div class="container">
+   
+    <div class="shadow-lg bg-white p-3">
+            <table class="table">
+                <tr>
+                    <td>Domain: {{ url_to_predict }}</td>
+                    <td>Status: <strong style="color: {% if prediction_result == ' Legitimate' %}green{% else %}red{% endif %}">{{ prediction_result }}</strong></td>
+                </tr>
+            </table>
+      </div>
+    <div>Features:</div>
+    <div class="row">
+       
+    <div class="col-sm-6">
+        <form action="/save_prediction" method="post">
+       <div class="row">
+     
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Favicon: {% if favicon_url %}
+<img src="{{ favicon_url }}" alt="Favicon" width="32" height="32">
+{% endif %}</div>
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    HTTP Secured: <input type="text" class="fm form-control" name="secure_http" value="{% if secure_http %} Yes{% else %} No {% endif %}"  readonly>
+</div>
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    IP Address in Domain: <input type="text" class="fm form-control" name="have_ip" value="{% if have_ip %} Yes{% else %} No {% endif %}" readonly>
+</div>
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Abnormal URL: <input type="text" class="fm form-control" name="abnormal" value="{% if abnormal %} Yes{% else %} No {% endif %}" readonly>
+</div>
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Shortened URL: <input type="text" class="fm form-control" name="shortened" value="{% if shortened %} Yes{% else %} No {% endif %}"readonly>
+</div>
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    URL Length: <input type="text" class="fm form-control" name="url_len" value="{{ url_len }}" readonly>
+</div>
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Special Characters Count: <input type="text" class="fm form-control" name="special_chars_count" value="{{ special_chars_count }}" readonly>
+</div>
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Letters Count: <input type="text" name="letters_count" class="fm form-control" value="{{ letters_count }}" readonly>
+</div>
+
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Digits Count: <input type="text" class="fm form-control" name="digits_count" value="{{ digits_count }}" readonly>
+</div>
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Domain Age: <input type="text" name="domain_age" class="fm form-control" value="{{ reputation.domain_age.human }}" readonly>
+</div>
+<div class="col-sm-3 shadow-lg p-4 mb-4 bg-white m-2">
+    Google Index: <input type="text" class="fm form-control" name="google_index" value="{% if google_index %} Yes{% else %} Yes {% endif %}" readonly>
+</div>
+<input type="hidden" name="email" value="{{ user.email }}">
+<input type="hidden" name="parent_id" value="{{ user.parent_id }}">
+<input type="hidden" name="url" value="{{ url_to_predict }} ">
+<input type="hidden" name="result" value="{{prediction_result}}">
+<div class="col-sm-12">
+    <button type="submit" class="btn btn-primary">Save Report</button>
+</div>
+
+       </div>
+    </form>  
+    </div>
+    <div class="col-sm-6 ">
+        {% if iframe_src %}
+        <iframe src="{{ iframe_src }}" width="100%" height="500px"></iframe>
+        {% endif %}
+       </div>
+    </div>
+</div>
+
+ 
+{% endif %}
+
+   
+
+    <!-- Add additional input fields as needed -->
+
+   
+
+
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Predictions</h1>
+    {{ session.user_email}}
+    <div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Url</th>
+                <th>Result</th>
+                <th>Secure HTTP</th>
+                <th>Have IP</th>
+                <th>Abnormal</th>
+                <th>Shortened</th>
+                <th>URL Length</th>
+                <th>Special Characters Count</th>
+                <th>Letters Count</th>
+                <th>Digits Count</th>
+                <th>Domain Age</th>
+                <th>Google Index</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prediction in predictions %}
+                <tr>
+                    <td>{{ prediction.id }}</td>
+                    <td>{{ prediction.url }}</td>
+                    <td>
+                        {% if prediction.result == " Legitimate" %}
+                        <span class="badge bg-success">Legitimate</span>
+                    {% else %}
+                        <span class="badge bg-danger">{{ prediction.result }}</span>
+                    {% endif %}
+                    </td>
+                    <td>{{ prediction.secure_http }}</td>
+                    <td>{{ prediction.have_ip }}</td>
+                    <td>{{ prediction.abnormal }}</td>
+                    <td>{{ prediction.shortened }}</td>
+                    <td>{{ prediction.url_len }}</td>
+                    <td>{{ prediction.special_chars_count }}</td>
+                    <td>{{ prediction.letters_count }}</td>
+                    <td>{{ prediction.digits_count }}</td>
+                    <td>{{ prediction.domain_age }}</td>
+                    <td>{{ prediction.google_index }}</td>
+                    <td>{{ prediction.created_at }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

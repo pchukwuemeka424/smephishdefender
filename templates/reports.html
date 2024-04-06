@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Prediction Reports</h1>
+    {% if predictions %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>URL</th>
+                    <th>Result</th>
+                    <th>Created At</th>
+                    <!-- Add more fields as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for prediction in predictions %}
+                    <tr>
+                        <td>{{ prediction.id }}</td>
+                        <td>{{ prediction.url }}</td>
+                        <td>
+                            {% if prediction.result == " Legitimate" %}
+                            <span class="badge bg-success">Legitimate</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ prediction.result }}</span>
+                        {% endif %}
+                        </td>
+                        <td>{{ prediction.created_at }}</td>
+                        <!-- Display more fields as needed -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No prediction reports available.</p>
+    {% endif %}
+{% endblock %}
