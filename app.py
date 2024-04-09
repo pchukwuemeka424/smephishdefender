@@ -347,6 +347,10 @@ def index():
 def sub_use():
     return render_template('sub_users.html')
 
+@app.route('/resource')
+def resource():
+    return render_template('resource.html')
+
 @app.route('/sub_user_dashboard')
 def sub_user_dashboard():
     return render_template('add_sub_user.html')
@@ -613,7 +617,7 @@ def report():
         return redirect(url_for('index'))
 
 
-from flask_login import current_user
+
 
 @app.route('/admin')
 def admin():
@@ -640,4 +644,4 @@ def admin():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run()
