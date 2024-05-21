@@ -18,6 +18,7 @@ import numpy as np
 login_manager = LoginManager()
 login_manager.init_app(app)
 from flask import session
+import nltk
 
 
 class User(UserMixin, db.Model):
