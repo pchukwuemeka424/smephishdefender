@@ -272,7 +272,7 @@ def make_prediction(url):
     prediction_int = loaded_model.predict(numerical_features)[0]
 
     # Mapping for prediction labels
-    class_mapping = {0: 'Suspicious', 1: 'Legitimate'}
+    class_mapping = {1: 'Suspicious', 0: 'Legitimate'}
     prediction_label = class_mapping.get(prediction_int, 'Unknown')
     
 
