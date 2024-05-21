@@ -221,7 +221,7 @@ def get_favicon_and_logo(url):
 
 
 # Load the saved model
-model_filename = 'machine_train_model.pkl'
+model_filename = 'fmodel.pkl'
 with open(model_filename, 'rb') as model_file:
     loaded_model = pickle.load(model_file)
 
