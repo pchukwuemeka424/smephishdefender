@@ -4,7 +4,7 @@
     <table>
         <tr>
             <th>Name</th>
-            <td>Welcome {{ user.name }}</td>
+            <td>Welcom {{ user.name }}</td>
         </tr>
         <tr>
             <th>Email</th>
@@ -15,7 +15,7 @@
         <!-- Add more rows to display additional user information -->
     </table>
   <div class="bg-white shadow-lg p-4 my-2 col-sm-8">
-    <div  class="h4">Analyse suspicious URLs to detect phishing
+    <div  class="h4">Analyse suspicious  URLs to detect malware and other breaches
     </div>
 <form action="/predict" method="post">
     
@@ -34,15 +34,19 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
-    {% if prediction_result %}
+    {% if prediction %}
 
 <div class="container">
    
     <div class="shadow-lg bg-white p-3">
             <table class="table">
                 <tr>
-                    <td>Domain: {{ url_to_predict }}</td>
-                    <td>Status: <strong style="color: {% if prediction_result == ' Legitimate' %}green{% else %}red{% endif %}">{{ prediction_result }}</strong></td>
+                    <td>Domain: {{ url}}</td>
+                    <td>Status: <strong style="color: {% if prediction_result == 'Legitimate' %}green{% else %}red{% endif %}">     {% if prediction == 'Unsafe' %}
+                        <span style="color: red;">Suspicious</span>
+                    {% else %}
+                        <span style="color: green;">Legitimate</span>
+                    {% endif %}</strong></td>
                 </tr>
             </table>
       </div>
@@ -97,8 +101,8 @@
 </div>
 <input type="hidden" name="email" value="{{ user.email }}">
 <input type="hidden" name="parent_id" value="{{ user.parent_id }}">
-<input type="hidden" name="url" value="{{ url_to_predict }} ">
-<input type="hidden" name="result" value="{{prediction_result}}">
+<input type="hidden" name="url" value="{{ url }} ">
+<input type="hidden" name="result" value="{% if prediction == 'Unsafe' %}Suspicious{% else %}Legitimate{% endif %}">
 <div class="col-sm-12">
     <button type="submit" class="btn btn-primary">Save Report</button>
 </div>
@@ -107,9 +111,10 @@
     </form>  
     </div>
     <div class="col-sm-6 ">
-        {% if iframe_src %}
-        <iframe src="{{ iframe_src }}" width="100%" height="500px"></iframe>
-        {% endif %}
+
+       
+        <iframe src="https://{{ url}}" width="100%" height="500px"></iframe>
+     
        </div>
     </div>
 </div>
