@@ -19,8 +19,17 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 from flask import session
 import nltk
-
-
+import whois
+from datetime import datetime
+import tldextract
+import requests
+import re
+import socket
+from urllib.parse import urlparse
+import geoip2.database
+import tldextract
+import socket
+import dns.resolver
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -36,7 +45,274 @@ class User(UserMixin, db.Model):
 
     # Define the relationship
     sub_users = db.relationship('User', backref=db.backref('parent', remote_side=[id]))
+def detect_domain_server(domain):
+   try:
+        # Perform DNS lookup to get IP address
+        ip_address = socket.gethostbyname(domain)
 
+        # Perform reverse DNS lookup to get server or hostname associated with IP
+        server = socket.gethostbyaddr(ip_address)[0]
+        
+        return server
+   except socket.gaierror:
+        print("Error: Hostname not found.")
+        return None
+   except socket.herror:
+        print("Error: Hostname not found.")
+        return None
+
+    
+def extract_tld(url):
+ # Extract the domain using tldextract
+    extracted = tldextract.extract(url)
+    return extracted.suffix
+
+def domain_ip_address(url):
+    try:
+        result = dns.resolver.query(url, 'A')
+        # Return the first IP address found
+        for ipval in result:
+            return ipval.to_text()
+    except dns.resolver.NXDOMAIN:
+        print("Domain does not exist.")
+    except dns.resolver.NoAnswer:
+        print("No A record found for the domain.")
+    except dns.resolver.Timeout:
+        print("DNS query timed out.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+    return None
+
+
+
+
+def get_domain_paths(url):
+    parsed_url = urlparse(url)
+    return parsed_url.path
+
+def extract_subdomains(url):
+
+    extracted = tldextract.extract(url)
+    return extracted.subdomain
+
+
+
+    
+
+
+def is_indexed_by_google(url):
+    try:
+        # Perform a Google search with the site: operator
+        search_query = f"site:{url}"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+        response = requests.get(f"https://www.google.com/search?q={search_query}", headers=headers)
+
+        # Check if the URL appears in the search results
+        if response.status_code == 200 and url in response.text:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
+    
+def https_token(url):
+     return url.startswith("https://")
+     if has_https(url):
+        print("URL contains 'https://'")
+     else:
+         print("URL does not contain 'https://'")
+
+# Load the trained model from file
+loaded_model = pickle.load(open('machine_train_model.pkl', 'rb'))
+
+# Function to preprocess the URL
+def preprocess_url(url):
+    # Remove http:// or https:// from the beginning of the URL
+    url = url.replace('http://', '').replace('https://', '')
+    return url
+def shortening_service(url):
+
+        match=re.search('bit\.ly|goo\.gl|shorte\.st|go2l\.ink|x\.co|ow\.ly|t\.co|tinyurl|tr\.im|is\.gd|cli\.gs|'
+                    'yfrog\.com|migre\.me|ff\.im|tiny\.cc|url4\.eu|twit\.ac|su\.pr|twurl\.nl|snipurl\.com|'
+                    'short\.to|BudURL\.com|ping\.fm|post\.ly|Just\.as|bkite\.com|snipr\.com|fic\.kr|loopt\.us|'
+                    'doiop\.com|short\.ie|kl\.am|wp\.me|rubyurl\.com|om\.ly|to\.ly|bit\.do|t\.co|lnkd\.in|'
+                    'db\.tt|qr\.ae|adf\.ly|goo\.gl|bitly\.com|cur\.lv|tinyurl\.com|ow\.ly|bit\.ly|ity\.im|'
+                    'q\.gs|is\.gd|po\.st|bc\.vc|twitthis\.com|u\.to|j\.mp|buzurl\.com|cutt\.us|u\.bb|yourls\.org|'
+                    'x\.co|prettylinkpro\.com|scrnch\.me|filoops\.info|vzturl\.com|qr\.net|1url\.com|tweez\.me|v\.gd|tr\.im|link\.zip\.net',url)
+        if match:
+            return True               # phishing
+        else:
+            return False               # legitimate
+        
+def get_root_domain(url):
+    # Extract the domain using tldextract
+    ext = tldextract.extract(url)
+    # Construct and return the root domain
+    return f"{ext.domain}.{ext.suffix}"
+
+# Function to calculate the age of the domain
+def get_domain_age(creation_date):
+    # Calculate the age of the domain
+    today = datetime.now()
+    age = today.year - creation_date.year - ((today.month, today.day) < (creation_date.month, creation_date.day))
+    return age
+
+# Function to get WHOIS information for a URL
+def get_whois_info(url):
+    try:
+        whois_info = whois.whois(url)
+        if whois_info:
+            if isinstance(whois_info.creation_date, list):
+                # In some cases, creation_date may be a list of dates (e.g., for multiple registration events)
+                creation_date = min(whois_info.creation_date)
+            else:
+                creation_date = whois_info.creation_date
+            # Get the age of the domain
+            age = get_domain_age(creation_date)
+            return {'domain_name': whois_info.domain_name, 'registrar': whois_info.registrar,
+                    'creation_date': creation_date, 'expiration_date': whois_info.expiration_date,
+                    'age': age}
+    except Exception as e:
+        # If an error occurs during WHOIS lookup, return None
+        print(f"Error fetching WHOIS information: {str(e)}")
+        return None
+    
+
+def is_ip_address(url):
+
+    # Regular expression pattern for matching IP address
+    match=re.search('(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|'  #IPv4
+                    '((0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\/)'  #IPv4 in hexadecimal
+                    '(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}',url)     #Ipv6
+    if match:
+            #print match.group()
+            return True            # phishing
+    else:
+            #print 'No matching pattern found'
+            return False            # legitimate
+
+
+import requests
+from bs4 import BeautifulSoup
+
+def has_iframe(url):
+    """Check if the given website contains iframes in its content.
+    
+    Args:
+        url (str): The URL of the website.
+        
+    Returns:
+        bool: True if iframes are found, False otherwise.
+    """
+    try:
+        # Send a GET request to the URL
+        response = requests.get(url)
+        # Parse the HTML content
+        soup = BeautifulSoup(response.content, 'html.parser')
+        # Find all iframe elements
+        iframes = soup.find_all('iframe')
+        # Check if iframes are found
+        return len(iframes) > 0
+    except Exception as e:
+        print(f"Error detecting iframes: {str(e)}")
+        return False
+    
+
+
+def has_special_characters(url):
+    # Define a regular expression pattern to match special characters
+    pattern = r'[!@#$%^&*(),.?":{}|<>]'
+    
+    # Use re.search() to find if any special character exists in the URL
+    if re.search(pattern, url):
+        return True
+    else:
+        return False
+
+def count_special_characters(url):
+    # Define a regular expression pattern to match special characters
+    pattern = r'[!@#$%^&*(),.?":{}|<>]'
+    
+    # Use re.findall() to find all occurrences of special characters in the URL
+    special_characters = re.findall(pattern, url)
+    
+    # Return the count of special characters found
+    return len(special_characters)
+
+def url_length(url):
+    # Use len() function to calculate the length of the URL
+    return len(url)
+
+
+def get_ip_reputation(api_key, url):
+ 
+    try:
+        # Construct the API URL
+        api_url = f"https://www.ipqualityscore.com/api/json/url/{api_key}/{url}"
+        
+        # Make a GET request to the API
+        response = requests.get(api_url)
+        
+        # Check if request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse the JSON response
+            ip_reputation = response.json()
+            return ip_reputation
+        else:
+            print(f"Failed to retrieve IP reputation. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+    return None
+
+
+import re
+
+def list_special_characters(url):
+    # Define a regular expression pattern to match special characters
+    pattern = r'[!@#$%^&*(),.?":{}|<>]'
+    
+    # Use re.findall() to find all occurrences of special characters in the URL
+    special_characters = re.findall(pattern, url)
+    
+    # Return the list of special characters found
+    return special_characters
+
+
+def check_ip_reputation(ip_address, api_key):
+    url = f"https://api.abuseipdb.com/api/v2/check?ipAddress={ip_address}"
+    headers = {
+        'Key': api_key,
+        'Accept': 'application/json'
+    }
+
+    response = requests.request(method='GET', url=url, headers=headers)
+
+    if response.status_code == 200:
+        result = response.json()
+        return result
+    else:
+        return None
+
+# Replace 'your_api_key' with your actual AbuseIPDB API key
+api_key = 'a29955086fe0dd2a8c42331f014cfc0707ccc73eedf9e0aa2f61266d5762f186e42c0cf02b25240f'
+
+def check_ip_reputation(ip_address):
+    url = f"https://api.abuseipdb.com/api/v2/check?ipAddress={ip_address}"
+    headers = {
+        'Key':'a29955086fe0dd2a8c42331f014cfc0707ccc73eedf9e0aa2f61266d5762f186e42c0cf02b25240f',
+        'Accept': 'application/json'
+    }
+
+    response = requests.request(method='GET', url=url, headers=headers)
+
+    if response.status_code == 200:
+        result = response.json()
+        return result
+    else:
+        return None
 def digit_count(URL):
     digits = 0
     for i in URL:
@@ -76,8 +352,23 @@ def get_root_domain(url):
     # Construct and return the root domain
     return f"{ext.domain}.{ext.suffix}"
 
+def get_favicon_and_logo(url):
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
 
+        # Extract favicon link
+        favicon_link = soup.find('link', rel='icon') or soup.find('link', rel='shortcut icon')
+        favicon_url = favicon_link.get('href') if favicon_link else None
 
+        # Extract logo (you may need to customize this based on the website structure)
+        logo_img = soup.find('img', alt='Logo') or soup.find('img', alt='logo')
+        logo_url = logo_img.get('src') if logo_img else None
+
+        return favicon_url, logo_url
+    except Exception as e:
+        print(f"Error: {e}")
+        return None, None
 
 def sum_count_special_characters(URL):
     special_chars = ['@','?','-','=','.','#','%','+','$','!','*',',','//']
@@ -221,7 +512,7 @@ def get_favicon_and_logo(url):
 
 
 # Load the saved model
-model_filename = 'fmodel.pkl'
+model_filename = 'machine_train_model.pkl'
 with open(model_filename, 'rb') as model_file:
     loaded_model = pickle.load(model_file)
 
@@ -280,52 +571,58 @@ def make_prediction(url):
 
 # Flask route for the index page
 @app.route('/predict', methods=['GET', 'POST'])
+def predict():
+    
+        # Get the URL from the form submission
+    url = request.form['url']
+        # Preprocess the URL
+    query = request.form['url']
+        # Get the root domain
+    root_domain = get_root_domain(url)
+    digits_count  = digit_count(url)
+        # Preprocess the URL
+    url = preprocess_url(url) # Import preprocess_url function
+    url_to_preview = request.form.get('url')
+    iframe_src = url_to_preview
+    special = has_special_characters(url)
+    url_len = url_length(url)
+    list_special = list_special_characters(url)
+    special_chars_count = count_special_characters(url)
+    paths = get_domain_paths(query)
+        #shorten Url
+    letters_count = letter_count(url)
+    shorten = shortening_service(url)
+        # Get WHOIS information for the URL
+    whois_info = get_whois_info(root_domain)
+        # Check if the URL is indexed by Google
+    is_indexed = is_indexed_by_google(root_domain)
+        # Check if the URL has https
+    has_https = https_token(query)
+         # Check if the URL is an IP address
+    ip_address = is_ip_address(url)
+        #extract_subdomains
+    extract_sub = extract_subdomains(query)
+        # Detect obfuscated code
 
-
-
-
-def result():
-    prediction_result = None
-    secure_http = None  # Initialize secure_http variable
-    url_len = None
-    letters_count = None
-    digits_count  = None
-    special_chars_count = None
-    shortened = None
-    abnormal = None
-    have_ip = None
-    index_google = None
-    iframe_src = None
-    favicon_url = None
-    logo_url = None
-    root_domain = None
-    reputation = None
-
-    if request.method == 'POST':
-
-        url_to_predict = request.form['url']
-        prediction_int,prediction_label = make_prediction(url_to_predict)
-        prediction_result = f" {prediction_label}"
-        secure_http = httpSecured(url_to_predict)  # Calculate secure_http value
-        url_len = len(url_to_predict)
-        letters_count = letter_count(url_to_predict)
-        digits_count  = digit_count(url_to_predict)
-        special_chars_count = sum_count_special_characters(url_to_predict)
-        shortened = Shortining_Service(url_to_predict)
-        abnormal = abnormal_url(url_to_predict)
-        have_ip = having_ip_address(url_to_predict)
-        index_google = google_index(url_to_predict)
-        url_to_preview = request.form.get('url')
-        iframe_src = url_to_preview
-        favicon_url, logo_url = get_favicon_and_logo(url_to_preview)
-        root_domain = get_root_domain(url_to_predict)
-      
-        reputation = get_ip_reputation('D3aS8wtUXlNjHRu63mvIraGTeXe7NP5U', root_domain)
+        # Check if the URL contains iframes
+    iframe_src = has_iframe(root_domain)
+        # Check if the URL is an IP address
+    is_ip = domain_ip_address(root_domain)
+        # Check if the URL is a domain name
+    tld = extract_tld(root_domain)
+    check_rep = check_ip_reputation(is_ip)
+    Domain_server = detect_domain_server(root_domain)
+    api_key = "D3aS8wtUXlNjHRu63mvIraGTeXe7NP5U"
+    reputation = get_ip_reputation(api_key, root_domain)
+        # Make predictions
+    prediction_result = loaded_model.predict([url])
+    url_to_preview = request.form.get('url')
+    favicon_url = get_favicon_and_logo(url_to_preview)
     if current_user.role != 'admin':
         # Fetch the current user's information from the database
         user = User.query.get(current_user.id)
        
-        return render_template('user_dashboard.html',url_to_predict=url_to_predict,reputation = reputation,user=user,favicon_url=favicon_url, logo_url=logo_url,iframe_src=iframe_src,index_google=index_google,have_ip=have_ip,abnormal=abnormal,shortened=shortened,digits_count = digits_count,special_chars_count=special_chars_count, prediction_result=prediction_result,letters_count = letters_count ,secure_http=secure_http,url_len=url_len)
+        return render_template('user_dashboard.html',favicon_url=favicon_url,url=url,prediction=prediction_result,user=user,letters_count=letters_count,url_len=url_len,reputation=reputation,iframe_src=iframe_src,special_chars_count=special_chars_count,digits_count=digits_count)
     else:
          flash('Unauthorized access.', 'error')
          return redirect(url_for('index'))
