@@ -31,3 +31,12 @@ Werkzeug==3.0.2
 gunicorn
 Gunicorn
 nltk
+tldextract==5.1.2
+typing_extensions==4.10.0
+urllib3==2.2.1
+Werkzeug==3.0.2
+dnspython==2.6.1
+geoip2==4.8.0
+google==3.0.0
+tldextract==5.1.2
+whois21==1.4.5
