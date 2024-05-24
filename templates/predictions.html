@@ -28,10 +28,10 @@
                     <td>{{ prediction.id }}</td>
                     <td>{{ prediction.url }}</td>
                     <td>
-                        {% if prediction.result == " Legitimate" %}
-                        <span class="badge bg-success">Legitimate</span>
+                        {% if prediction.result == " Legitimate" or prediction.result == "Legitimate" %}
+                        <span class="badge bg-success">{{prediction.result}}</span>
                     {% else %}
-                        <span class="badge bg-danger">{{ prediction.result }}</span>
+                        <span class="badge bg-danger">{{prediction.result}}</span>
                     {% endif %}
                     </td>
                     <td>{{ prediction.secure_http }}</td>
