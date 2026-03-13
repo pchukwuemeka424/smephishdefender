@@ -4,8 +4,8 @@ A web application that helps detect phishing URLs using machine learning. Submit
 
 ## Features
 
-- **URL phishing detection** — Classifies URLs as **Suspicious** or **Legitimate** using a trained Random Forest model
-- **Detailed analysis** — URL length, special characters, digit/letter counts, shortening services, HTTPS, IP in domain, Google indexing, domain age (WHOIS), free hosting indicators, and more
+- **URL phishing detection** — Classifies URLs as **Suspicious** or **Legitimate** using trained Random Forest models
+- **Detailed analysis** — URL length, special characters, digit/letter counts, shortening services, HTTPS, IP in domain, Google indexing, domain age (WHOIS), free hosting indicators, GeoIP data, DNS records, and more
 - **User accounts** — Sign up, login, and role-based access (admin vs regular user)
 - **Admin dashboard** — Manage sub-users, view reports, and see prediction statistics
 - **Prediction history** — Save and view past URL checks and results
@@ -14,8 +14,9 @@ A web application that helps detect phishing URLs using machine learning. Submit
 
 - **Backend:** Flask, Flask-SQLAlchemy, Flask-Login, Flask-Bcrypt  
 - **ML:** scikit-learn (Random Forest), NumPy  
-- **Data:** SQLite (default), WHOIS, DNS lookups, tldextract  
+- **Data:** SQLite (default), WHOIS, DNS lookups, tldextract, GeoIP2  
 - **Frontend:** Jinja2 templates, Bootstrap-style UI  
+- **Additional libraries:** beautifulsoup4, requests, nltk, dnspython, geoip2, python-whois
 
 ## Prerequisites
 
@@ -26,41 +27,41 @@ A web application that helps detect phishing URLs using machine learning. Submit
 
 1. **Clone the repository** (or navigate to the project folder):
 
-   ```bash
-   cd smephishdefender
-   ```
+    ```bash
+    cd smephishdefender
+    ```
 
 2. **Create a virtual environment** (recommended):
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # On Windows: venv\Scripts\activate
-   ```
+    ```bash
+    python -m venv venv
+    source venv/bin/activate   # On Windows: venv\Scripts\activate
+    ```
 
 3. **Install dependencies**:
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 4. **Configure the app** (optional but recommended):
 
-   - Set a strong `secret_key` in `app.py` for production (replace `'your_secret_key'`).
-   - If you use external APIs (e.g. AbuseIPDB, IPQualityScore), set your keys via environment variables or config and avoid committing them.
+    - Set a strong `secret_key` in `app.py` for production (replace `'your_secret_key'`).
+    - If you use external APIs (e.g. AbuseIPDB, IPQualityScore), set your keys via environment variables or config and avoid committing them.
 
 ## Running the App
 
 1. From the project root, run:
 
-   ```bash
-   python app.py
-   ```
+    ```bash
+    python app.py
+    ```
 
 2. Open a browser and go to:
 
-   ```
-   http://127.0.0.1:5000
-   ```
+    ```
+    http://127.0.0.1:5000
+    ```
 
 3. Sign up or log in, then use the dashboard to enter a URL and run a phishing check.
 
@@ -70,7 +71,9 @@ A web application that helps detect phishing URLs using machine learning. Submit
 smephishdefender/
 ├── app.py                 # Flask app, routes, ML prediction logic
 ├── requirements.txt       # Python dependencies
-├── machine_train_model.pkl  # Trained phishing-detection model
+├── machine_train_model.pkl  # Trained phishing-detection model (primary)
+├── fmodel.pkl             # Additional trained phishing-detection model
+├── 2020 machie (2).ipynb  # Jupyter notebook with model training code
 ├── instance/
 │   └── app.db            # SQLite database (created on first run)
 ├── static/               # CSS, JS, images
@@ -80,7 +83,7 @@ smephishdefender/
 
 ## Model & Training
 
-The phishing classifier is trained on URL features (length, special characters, shortening services, HTTPS, IP in URL, Google index, domain length, free hosting, etc.). The serialized model is stored in `machine_train_model.pkl`. Training code is available in the included Jupyter notebook (`2020 machie (2).ipynb`) for reference or retraining.
+The phishing classifiers are trained on URL features (length, special characters, shortening services, HTTPS, IP in URL, Google index, domain length, free hosting, etc.). Serialized models are stored in `machine_train_model.pkl` (primary) and `fmodel.pkl` (additional). Training code is available in the included Jupyter notebook (`2020 machie (2).ipynb`) for reference or retraining.
 
 ## License
 
