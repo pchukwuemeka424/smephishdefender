@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Batch URL Scanner</h1>
+    <p class="lead">Submit multiple URLs for phishing detection (one per line)</p>
+    
+    <form method="POST" action="{{ url_for('batch_scan') }}" class="mt-4">
+        <div class="form-group">
+            <label for="urls">Enter URLs (one per line):</label>
+            <textarea class="form-control" id="urls" name="urls" rows="10" placeholder="https://example.com&#10;https://phishing-site.example"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg">Scan URLs</button>
+    </form>
+    
+    {% if results %}
+    <div class="mt-5">
+        <h2>Scan Results</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>URL</th>
+                        <th>Prediction</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.url }}</td>
+                        <td>
+                            {% if result.prediction == 'Legitimate' %}
+                            <span class="badge badge-success">{{ result.prediction }}</span>
+                            {% else %}
+                            <span class="badge badge-danger">{{ result.prediction }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ result.confidence }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
