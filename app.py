@@ -598,7 +598,7 @@ def predict():
     is_indexed = is_indexed_by_google(root_domain)
         # Check if the URL has https
     has_https = https_token(query)
-         # Check if the URL is an IP address
+          # Check if the URL is an IP address
     ip_address = is_ip_address(url)
         #extract_subdomains
     extract_sub = extract_subdomains(query)
@@ -621,8 +621,64 @@ def predict():
     if current_user.role != 'admin':
         # Fetch the current user's information from the database
         user = User.query.get(current_user.id)
-       
+        
         return render_template('user_dashboard.html',favicon_url=favicon_url,url=url,prediction=prediction_result,user=user,letters_count=letters_count,url_len=url_len,reputation=reputation,iframe_src=iframe_src,special_chars_count=special_chars_count,digits_count=digits_count)
+    else:
+         flash('Unauthorized access.', 'error')
+         return redirect(url_for('index'))
+
+
+@app.route('/batch_scan', methods=['GET', 'POST'])
+@login_required
+def batch_scan():
+    if current_user.role != 'admin':
+        # Fetch the current user's information from the database
+        user = User.query.get(current_user.id)
+        
+        if request.method == 'POST':
+            # Get URLs from the form
+            urls_text = request.form['urls']
+            urls = [url.strip() for url in urls_text.split('\n') if url.strip()]
+            
+            results = []
+            
+            for url in urls:
+                try:
+                    # Preprocess URL
+                    query = url
+                    root_domain = get_root_domain(url)
+                    url = preprocess_url(url)
+                    
+                    # Make prediction
+                    prediction_result = loaded_model.predict([url])
+                    
+                    # Determine prediction label
+                    if prediction_result[0] == 1:
+                        prediction_label = 'Legitimate'
+                    else:
+                        prediction_label = 'Suspicious'
+                    
+                    # Get prediction confidence (using predict_proba)
+                    prediction_proba = loaded_model.predict_proba([url])[0]
+                    confidence = max(prediction_proba) * 100
+                    
+                    # Add result to list
+                    results.append({
+                        'url': query,
+                        'prediction': prediction_label,
+                        'confidence': round(confidence, 2)
+                    })
+                except Exception as e:
+                    results.append({
+                        'url': url,
+                        'prediction': 'Error',
+                        'confidence': 0
+                    })
+                    print(f"Error processing {url}: {str(e)}")
+            
+            return render_template('batch_scan.html', results=results, user=user)
+        
+        return render_template('batch_scan.html', results=None, user=user)
     else:
          flash('Unauthorized access.', 'error')
          return redirect(url_for('index'))
