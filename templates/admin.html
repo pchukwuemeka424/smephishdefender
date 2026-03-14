@@ -1,116 +1,284 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <h1>Analytics Dashboard</h1>
 
 <div class="row">
-    <div class="col-sm-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col mt-0">
-                        <h5 class="card-title">Total Reports</h5>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="stat text-primary">
-                            <i class="align-middle" data-feather="users"></i>
-                        </div>
-                    </div>
-                </div>
-                <h1 class="mt-1 mb-4">{{ total_reports }}</h1>
-                <div class="mb-0">
-                    <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i> </span>
-                    <span class="text-muted"></span>
-                </div>
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col mt-0">
+            <h5 class="card-title">Total Reports</h5>
+          </div>
+          <div class="col-auto">
+            <div class="stat text-primary">
+              <i class="align-middle" data-feather="users"></i>
             </div>
+          </div>
         </div>
+        <h1 class="mt-1 mb-4">{{ total_reports }}</h1>
+        <div class="mb-0">
+          <span class="text-success">
+            <i class="mdi mdi-arrow-bottom-right"></i>
+          </span>
+          <span class="text-muted"></span>
+        </div>
+      </div>
     </div>
-    <div class="col-sm-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col mt-0">
-                        <h5 class="card-title">Total Legitimate</h5>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="stat text-primary">
-                            <i class="align-middle" data-feather="users"></i>
-                        </div>
-                    </div>
-                </div>
-                <h1 class="mt-1 mb-3">{{ total_legitimate }}</h1>
-                <div class="mb-0">
-                    <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i> </span>
-                    <span class="text-muted"></span>
-                </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col mt-0">
+            <h5 class="card-title">Total Legitimate</h5>
+          </div>
+          <div class="col-auto">
+            <div class="stat text-success">
+              <i class="align-middle" data-feather="check-circle"></i>
             </div>
+          </div>
         </div>
+        <h1 class="mt-1 mb-3">{{ total_legitimate }}</h1>
+        <div class="mb-0">
+          <span class="text-success">
+            <i class="mdi mdi-arrow-bottom-right"></i>
+          </span>
+          <span class="text-muted"></span>
+        </div>
+      </div>
     </div>
-    <div class="col-sm-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col mt-0">
-                        <h5 class="card-title">Total Suspicious </h5>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="stat text-primary">
-                            <i class="align-middle" data-feather="users"></i>
-                        </div>
-                    </div>
-                </div>
-                <h1 class="mt-1 mb-3">{{ total_suspicious }}</h1>
-                <div class="mb-0">
-                    <span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i> </span>
-                    <span class="text-muted"></span>
-                </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col mt-0">
+            <h5 class="card-title">Total Suspicious</h5>
+          </div>
+          <div class="col-auto">
+            <div class="stat text-danger">
+              <i class="align-middle" data-feather="alert-triangle"></i>
             </div>
+          </div>
         </div>
+        <h1 class="mt-1 mb-3">{{ total_suspicious }}</h1>
+        <div class="mb-0">
+          <span class="text-success">
+            <i class="mdi mdi-arrow-bottom-right"></i>
+          </span>
+          <span class="text-muted"></span>
+        </div>
+      </div>
     </div>
-
+  </div>
 </div>
 
+<div class="row mt-4">
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Report Distribution (Bar Chart)</h5>
+        <canvas id="reportBarChart" style="width: 100%; height: 300px"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Report Proportion (Pie Chart)</h5>
+        <canvas id="reportPieChart" style="width: 100%; height: 300px"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
 
-
-
-
-
-<p>Total Reports: {{ total_reports }}</p>
-<div class="col-sm-6">
-    <canvas id="reportChart" style="width: 100%;height:400px;"></canvas>
+<div class="row mt-4">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Reports Over Time (Line Chart)</h5>
+        <canvas
+          id="reportLineChart"
+          style="width: 100%; height: 300px"
+        ></canvas>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var ctx = document.getElementById('reportChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Legitimate', 'Suspicious'],
-            datasets: [{
-                label: 'Number of Reports',
-                data: [{{ total_legitimate }}, {{ total_suspicious }}],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 99, 132, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+  // Bar Chart
+  var barCtx = document.getElementById('reportBarChart').getContext('2d');
+  var barChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+          labels: ['Legitimate', 'Suspicious'],
+          datasets: [{
+              label: 'Number of Reports',
+              data: [{{ total_legitimate }}, {{ total_suspicious }}],
+              backgroundColor: [
+                  'rgba(75, 192, 192, 0.6)',
+                  'rgba(255, 99, 132, 0.6)'
+              ],
+              borderColor: [
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(255, 99, 132, 1)'
+              ],
+              borderWidth: 2,
+              borderRadius: 8,
+              hoverOffset: 4
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'top',
+              },
+              tooltip: {
+                  callbacks: {
+                      label: function(context) {
+                          var label = context.dataset.label || '';
+                          if (label) {
+                              label += ': ';
+                          }
+                          if (context.parsed.y !== null) {
+                              label += new Intl.NumberFormat().format(context.parsed.y);
+                          }
+                          return label;
+                      }
+                  }
+              }
+          },
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      callback: function(value) {
+                          return value.toLocaleString();
+                      }
+                  }
+              }
+          }
+      }
+  });
+
+  // Pie Chart
+  var pieCtx = document.getElementById('reportPieChart').getContext('2d');
+  var pieChart = new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+          labels: ['Legitimate', 'Suspicious'],
+          datasets: [{
+              label: 'Report Proportion',
+              data: [{{ total_legitimate }}, {{ total_suspicious }}],
+              backgroundColor: [
+                  'rgba(75, 192, 192, 0.7)',
+                  'rgba(255, 99, 132, 0.7)'
+              ],
+              borderColor: [
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(255, 99, 132, 1)'
+              ],
+              borderWidth: 2
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'bottom',
+              },
+              tooltip: {
+                  callbacks: {
+                      label: function(context) {
+                          var label = context.label || '';
+                          if (label) {
+                              label += ': ';
+                          }
+                          var value = context.parsed;
+                          var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                          var percentage = Math.round((value / total) * 100);
+                          label += percentage + '% (' + value + ')';
+                          return label;
+                      }
+                  }
+              }
+          }
+      }
+  });
+
+  // Line Chart (Trend Analysis)
+  var lineCtx = document.getElementById('reportLineChart').getContext('2d');
+  var lineChart = new Chart(lineCtx, {
+      type: 'line',
+      data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          datasets: [
+              {
+                  label: 'Legitimate',
+                  data: [12, 19, 3, 5, 2, 3, 8, 15, 7, 11, 6, 9],
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                  pointRadius: 5,
+                  pointHoverRadius: 7
+              },
+              {
+                  label: 'Suspicious',
+                  data: [5, 8, 1, 3, 7, 2, 4, 9, 6, 3, 8, 5],
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                  pointRadius: 5,
+                  pointHoverRadius: 7
+              }
+          ]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'top',
+              },
+              tooltip: {
+                  mode: 'index',
+                  intersect: false,
+                  callbacks: {
+                      label: function(context) {
+                          var label = context.dataset.label || '';
+                          if (label) {
+                              label += ': ';
+                          }
+                          if (context.parsed.y !== null) {
+                              label += new Intl.NumberFormat().format(context.parsed.y);
+                          }
+                          return label;
+                      }
+                  }
+              }
+          },
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      callback: function(value) {
+                          return value.toLocaleString();
+                      }
+                  }
+              }
+          },
+          interaction: {
+              mode: 'nearest',
+              axis: 'x',
+              intersect: false
+          }
+      }
+  });
 </script>
-</body>
 {% endblock %}
